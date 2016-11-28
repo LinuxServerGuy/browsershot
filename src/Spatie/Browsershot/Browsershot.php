@@ -35,6 +35,11 @@ class Browsershot
      */
     protected $url;
 
+    /*
+    * @var string
+    */
+    protected $tempFilename;
+    
     /**
      * @var string
      */
@@ -255,12 +260,17 @@ class Browsershot
         $tempJsFileHandle = tmpfile();
 
         fwrite($tempJsFileHandle, $this->getPhantomJsScript($targetFile));
-        $tempFileName = stream_get_meta_data($tempJsFileHandle)['uri'];
-        $cmd = escapeshellcmd("{$this->binPath} --ssl-protocol=any --ignore-ssl-errors=true ".$tempFileName);
+        $this->tempFileName = stream_get_meta_data($tempJsFileHandle)['uri'];
+        $cmd = escapeshellcmd("{$this->binPath} --ssl-protocol=any --ignore-ssl-errors=true ".$this->tempFileName);
 
         shell_exec($cmd);
 
         fclose($tempJsFileHandle);
+    }
+
+    public function getBase64()
+    {
+	    return base64_encode($this->tempFileName) ;
     }
 
     /**
